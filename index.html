@@ -1221,57 +1221,20 @@ function gerarPDF() {
       doc.text('SOBRE', 20, 24);
       decorLine(28);
 
-      // Foto profissional — recortada em círculo via clipping
+      // Foto profissional — quadrada com borda rose
       try {
-        const cx4 = W/2, cy4 = 65, r4 = 28;
-        doc.saveGraphicsState();
-        // Criar clipping circular
-        doc.setFillColor(255,255,255);
-        doc.circle(cx4, cy4, r4, 'F');
-        // jsPDF clip path via GState não suporta nativo, então desenhamos a imagem quadrada
-        // e sobrepõe arcos brancos para simular recorte circular
-        doc.addImage(FOTO_B64, 'JPEG', cx4 - r4, cy4 - r4, r4*2, r4*2, '', 'FAST');
-        doc.restoreGraphicsState();
-        // Borda do círculo
-        doc.setDrawColor(roseR, roseG, roseB);
-        doc.setLineWidth(1.2);
-        doc.circle(cx4, cy4, r4, 'S');
-        // Mascarar cantos com cor de fundo (cream) para simular recorte circular
-        const bg = [creamR, creamG, creamB];
-        doc.setFillColor(...bg);
-        doc.setDrawColor(...bg);
-        // 4 cantos
-        doc.rect(cx4 - r4 - 1, cy4 - r4 - 1, r4 + 1, r4 + 1, 'F');
-        doc.rect(cx4, cy4 - r4 - 1, r4 + 1, r4 + 1, 'F');
-        doc.rect(cx4 - r4 - 1, cy4, r4 + 1, r4 + 1, 'F');
-        doc.rect(cx4, cy4, r4 + 1, r4 + 1, 'F');
-        // Redesenhar borda rose por cima
-        doc.setDrawColor(roseR, roseG, roseB);
-        doc.setLineWidth(1.2);
-        doc.circle(cx4, cy4, r4, 'S');
-        // Redesenhar arcos de preenchimento cream nos 4 cantos usando círculo maior invertido
-        // Abordagem: cobrir os 4 quadrantes externos com retângulos cream + arco interno
-        // Limpar cantos com pequenos retângulos posicionados
-        const off = 2;
-        doc.setFillColor(...bg);
-        for (let ang = 0; ang < 360; ang += 1) {
-          // skip — usar método de retângulos apenas
-        }
-        // Método simples e eficaz: 8 retângulos diagonais nos cantos
-        const sq = r4 * 0.29; // ~0.29 * r para cobrir o canto sem entrar no círculo
-        doc.rect(cx4 - r4 - 1,     cy4 - r4 - 1, r4 - sq + 1, r4 - sq + 1, 'F');
-        doc.rect(cx4 + sq,         cy4 - r4 - 1, r4 - sq + 1, r4 - sq + 1, 'F');
-        doc.rect(cx4 - r4 - 1,     cy4 + sq,     r4 - sq + 1, r4 - sq + 1, 'F');
-        doc.rect(cx4 + sq,         cy4 + sq,     r4 - sq + 1, r4 - sq + 1, 'F');
-        // Borda final
-        doc.setDrawColor(roseR, roseG, roseB);
-        doc.setLineWidth(1.2);
-        doc.circle(cx4, cy4, r4, 'S');
+        const fW = 60, fH = 60;
+        const fX = W/2 - fW/2, fY = 33;
+        // Borda rose (fundo levemente maior)
+        doc.setFillColor(roseR, roseG, roseB);
+        doc.roundedRect(fX - 2, fY - 2, fW + 4, fH + 4, 3, 3, 'F');
+        // Foto por cima
+        doc.addImage(FOTO_B64, 'JPEG', fX, fY, fW, fH, '', 'FAST');
       } catch(e) {
         doc.setFillColor(roseLtR, roseLtG, roseLtB);
-        doc.circle(W/2, 65, 28, 'F');
+        doc.roundedRect(W/2 - 30, 33, 60, 60, 3, 3, 'F');
         setRose(); doc.setFont('helvetica','italic'); doc.setFontSize(28);
-        doc.text('L', W/2, 72, { align: 'center' });
+        doc.text('L', W/2, 67, { align: 'center' });
       }
 
       setDark();
